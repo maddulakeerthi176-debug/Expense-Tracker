@@ -1,1 +1,63 @@
-# Expense-Tracker
+import mysql.connector
+
+conn = mysql.connector.connect(
+    host="localhost",
+    user="root",
+    password="your_password",
+    database="expense_tracker"
+)
+
+cursor = conn.cursor()
+
+while True:
+    print("\n===== EXPENSE TRACKER =====")
+    print("1. Add Expense")
+    print("2. View Expenses")
+    print("3. Total Spending")
+    print("4. Exit")
+
+    choice = input("Enter Choice: ")
+
+    if choice == "1":
+        date = input("Enter Date (YYYY-MM-DD): ")
+        category = input("Enter Category: ")
+        amount = float(input("Enter Amount: "))
+
+        sql = """
+        INSERT INTO expenses(expense_date, category, amount)
+        VALUES(%s,%s,%s)
+        """
+
+        cursor.execute(sql, (date, category, amount))
+        conn.commit()
+
+        print("Expense Added Successfully!")
+
+    elif choice == "2":
+        cursor.execute("SELECT * FROM expenses")
+        records = cursor.fetchall()
+
+        print("\nID | DATE | CATEGORY | AMOUNT")
+        print("-" * 40)
+
+        for row in records:
+            print(row)
+
+    elif choice == "3":
+        cursor.execute("SELECT SUM(amount) FROM expenses")
+        total = cursor.fetchone()[0]
+
+        if total is None:
+            total = 0
+
+        print("\nTotal Spending =", total)
+
+    elif choice == "4":
+        print("Thank You!")
+        break
+
+    else:
+        print("Invalid Choice")
+
+cursor.close()
+conn.close()
